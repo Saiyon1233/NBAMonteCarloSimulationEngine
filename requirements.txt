@@ -1,0 +1,5 @@
+numpy
+pandas
+datetime
+nba_api
+flask
