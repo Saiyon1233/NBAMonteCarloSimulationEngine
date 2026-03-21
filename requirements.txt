@@ -1,5 +1,7 @@
 numpy
 pandas
 datetime
+traceback
 nba_api
 flask
+flask-cors
