@@ -8,7 +8,8 @@ function App() {
   const [team2, setTeam2] = useState("");
 
   const [result, setResult] = useState(null);
-  const [seasonData, setSeasonData] = useState([]); // ✅ FIXED
+  const [seasonData, setSeasonData] = useState([]);
+  const [playoffData, setPlayoffData] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -48,19 +49,22 @@ function App() {
     setLoading(true);
     setError("");
     setSeasonData([]);
+    setPlayoffData(null);
 
     try {
       const response = await axios.post(
         "http://127.0.0.1:5000/simulate_season"
       );
 
-      // ✅ SAFE HANDLING
-      if (Array.isArray(response.data)) {
-        setSeasonData(response.data);
-      } else if (response.data.standings) {
+      if (response.data.standings) {
         setSeasonData(response.data.standings);
       } else {
         setSeasonData([]);
+      }
+      
+      // Add playoff data if available
+      if (response.data.playoffs) {
+        setPlayoffData(response.data.playoffs);
       }
     } catch (err) {
       console.error(err);
@@ -288,6 +292,111 @@ function App() {
                   </p>
                 );
               })}
+
+              {/* Playoff Bracket */}
+              {playoffData && (
+                <div style={{ marginTop: "20px", borderTop: "1px solid #374151", paddingTop: "15px" }}>
+                  <h2>🏆 Playoff Bracket</h2>
+
+                  {/* First Round */}
+                  <h3 style={{ fontSize: "16px", marginTop: "15px", color: "#93c5fd" }}>First Round</h3>
+                  <div style={{ fontSize: "12px", lineHeight: "1.8" }}>
+                    <h4 style={{ fontSize: "14px", marginTop: "10px", color: "#e0e7ff" }}>East</h4>
+                    {playoffData.first_round.east.map((series, i) => {
+                      return (
+                        <p key={i} style={{ marginBottom: "4px" }}>
+                          {series.matchup}
+                          <br />
+                          <span style={{ color: "#10b981" }}>Winner: {series.winner}</span>
+                          <span style={{ color: "#fbbf24", marginLeft: "10px" }}>Series: {series.games} games</span>
+                        </p>
+                      );
+                    })}
+
+                    <h4 style={{ fontSize: "14px", marginTop: "10px", color: "#e0e7ff" }}>West</h4>
+                    {playoffData.first_round.west.map((series, i) => {
+                      return (
+                        <p key={i} style={{ marginBottom: "4px" }}>
+                          {series.matchup}
+                          <br />
+                          <span style={{ color: "#10b981" }}>Winner: {series.winner}</span>
+                          <span style={{ color: "#fbbf24", marginLeft: "10px" }}>Series: {series.games} games</span>
+                        </p>
+                      );
+                    })}
+                  </div>
+
+                  {/* Second Round */}
+                  <h3 style={{ fontSize: "16px", marginTop: "15px", color: "#93c5fd" }}>Second Round</h3>
+                  <div style={{ fontSize: "12px", lineHeight: "1.8" }}>
+                    <h4 style={{ fontSize: "14px", marginTop: "10px", color: "#e0e7ff" }}>East</h4>
+                    {playoffData.second_round.east.map((series, i) => {
+                      return (
+                        <p key={i} style={{ marginBottom: "4px" }}>
+                          {series.matchup}
+                          <br />
+                          <span style={{ color: "#10b981" }}>Winner: {series.winner}</span>
+                          <span style={{ color: "#fbbf24", marginLeft: "10px" }}>Series: {series.games} games</span>
+                        </p>
+                      );
+                    })}
+
+                    <h4 style={{ fontSize: "14px", marginTop: "10px", color: "#e0e7ff" }}>West</h4>
+                    {playoffData.second_round.west.map((series, i) => {
+                      return (
+                        <p key={i} style={{ marginBottom: "4px" }}>
+                          {series.matchup}
+                          <br />
+                          <span style={{ color: "#10b981" }}>Winner: {series.winner}</span>
+                          <span style={{ color: "#fbbf24", marginLeft: "10px" }}>Series: {series.games} games</span>
+                        </p>
+                      );
+                    })}
+                  </div>
+
+                  {/* Conference Finals */}
+                  <h3 style={{ fontSize: "16px", marginTop: "15px", color: "#93c5fd" }}>Conference Finals</h3>
+                  <div style={{ fontSize: "12px", lineHeight: "1.8" }}>
+                    {playoffData.conference_finals.east && (
+                      <div>
+                        <h4 style={{ fontSize: "14px", marginTop: "10px", color: "#e0e7ff" }}>Eastern Conference Finals</h4>
+                        <p style={{ marginBottom: "4px" }}>
+                          {playoffData.conference_finals.east.matchup}
+                          <br />
+                          <span style={{ color: "#10b981" }}>Winner: {playoffData.conference_finals.east.winner}</span>
+                          <span style={{ color: "#fbbf24", marginLeft: "10px" }}>Series: {playoffData.conference_finals.east.games} games</span>
+                        </p>
+                      </div>
+                    )}
+                    {playoffData.conference_finals.west && (
+                      <div>
+                        <h4 style={{ fontSize: "14px", marginTop: "10px", color: "#e0e7ff" }}>Western Conference Finals</h4>
+                        <p style={{ marginBottom: "4px" }}>
+                          {playoffData.conference_finals.west.matchup}
+                          <br />
+                          <span style={{ color: "#10b981" }}>Winner: {playoffData.conference_finals.west.winner}</span>
+                          <span style={{ color: "#fbbf24", marginLeft: "10px" }}>Series: {playoffData.conference_finals.west.games} games</span>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* NBA Finals */}
+                  <h3 style={{ fontSize: "16px", marginTop: "15px", color: "#fbbf24" }}>🏀 NBA Finals</h3>
+                  {playoffData.nba_finals && (
+                    <div style={{ fontSize: "12px", lineHeight: "1.8" }}>
+                      <p>
+                        {playoffData.nba_finals.matchup}
+                        <br />
+                        <span style={{ color: "#fbbf24", fontSize: "14px", fontWeight: "bold" }}>
+                          Champion: {playoffData.nba_finals.winner}
+                        </span>
+                        <span style={{ color: "#ec4899", marginLeft: "10px" }}>Series: {playoffData.nba_finals.games} games</span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
       </div>

@@ -1,6 +1,7 @@
 import traceback
 from flask import Flask, request, jsonify
 from simulation import monte_carlo_season_simulation, monte_carlo_game_simulation
+from playoffs import simulate_playoffs as sim_playoffs
 from model import fetch_team_data
 from game import simulate_game
 import pandas as pd
@@ -71,8 +72,11 @@ def simulate_season():
                 "losses": losses,
                 "conference": conference
             })
+        
+        # Simulate playoffs after season
+        playoff_bracket = sim_playoffs(list(data.keys()), results, data, league_average)
 
-        return jsonify({"standings": standings})
+        return jsonify({"standings": standings, "playoffs": playoff_bracket})
 
     except Exception as e:
         traceback.print_exc()
