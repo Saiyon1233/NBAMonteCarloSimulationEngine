@@ -14,7 +14,7 @@ def fetch_team_data(season):
         offensive_rating = row['OFF_RATING']
         defensive_rating = row['DEF_RATING']
         data[team_name] = {"offense": offensive_rating, "defense": defensive_rating}
-    
+        
     return data, league_average
 
 def normalize_team_name(name, data):

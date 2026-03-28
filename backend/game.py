@@ -1,8 +1,8 @@
 import numpy as np
 from model import expected_score
 
-def simulate_game(team_a, team_b, data):
-    exp_a, exp_b = expected_score(team_a, team_b, data, data["league_average"])
+def simulate_game(team_a, team_b, data, league_average):
+    exp_a, exp_b = expected_score(team_a, team_b, data, league_average)
     
     # Add randomness
     score_a = np.random.normal(exp_a, 12)

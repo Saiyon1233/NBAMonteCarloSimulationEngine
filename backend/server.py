@@ -1,6 +1,6 @@
 import traceback
 from flask import Flask, request, jsonify
-from simulation import monte_carlo_simulation
+from simulation import monte_carlo_season_simulation, monte_carlo_game_simulation
 from model import fetch_team_data
 from game import simulate_game
 import pandas as pd
@@ -17,21 +17,20 @@ else:
     season = f"{today.year - 1}-{str(today.year)[-2:]}"
 
 data, league_average = fetch_team_data(season)
-data["league_average"] = league_average
     
 @app.route('/')
 def home():
     return "NBA Monte Carlo API is running" 
     
 @app.route('/simulate', methods=['POST'])
-def simulate():
+def simulate_game():
     try:
         req = request.get_json()
 
         team_a = req.get("team1")
         team_b = req.get("team2")
 
-        results = monte_carlo_simulation(team_a, team_b, data)
+        results = monte_carlo_game_simulation(team_a, team_b, data, league_average)
 
         total = results["team_a_wins"] + results["team_b_wins"]
 
@@ -47,6 +46,33 @@ def simulate():
             "avg_score_a": results["avg_score_a"],
             "avg_score_b": results["avg_score_b"]
         })
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/simulate_season', methods=['POST'])
+def simulate_season():
+
+    try:
+        
+        results = monte_carlo_season_simulation(list(data.keys()), data, league_average)
+        
+        standings = []
+        
+        for team in results:
+            wins = results[team]["wins"]
+            losses = results[team]["losses"]
+            conference = results[team]["conference"]
+
+            standings.append({
+                "team": team,
+                "wins": wins,
+                "losses": losses,
+                "conference": conference
+            })
+
+        return jsonify({"standings": standings})
 
     except Exception as e:
         traceback.print_exc()
